@@ -116,6 +116,7 @@
 				)
 				,'link'=>array(
 					'Actions'=>'<a href="?action=dellink&fk_group=@Id@&id='.$object->id.'">'.img_delete().'</a>'
+					,'nom'=>img_picto('', 'object_group.png').' <a href="'.dol_buildpath('/user/group/fiche.php',1).'?id=@Id@">@val@</a>'
 				)
 				
 			));
@@ -123,3 +124,5 @@
 	
 	
 	llxFooter();
+
+	

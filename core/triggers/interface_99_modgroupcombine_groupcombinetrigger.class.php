@@ -133,10 +133,15 @@ class Interfacegroupcombinetrigger
         } 
         elseif ($action === 'USER_REMOVEFROMGROUP') {
         	
+			define('INC_FROM_DOLIBARR', true);
+		    dol_include_once('/groupcombine/config.php');
+			dol_include_once('/groupcombine/class/usergroup_group.class.php');
+			
 			$fk_group = $object->oldgroupid;
+			$ATMdb=new TPDOdb;
+			TUserGroup_Group::unlinkUserFromGroup($ATMdb, $fk_group, $object->id);
 			
 			
-			var_dump($object);exit;
 			
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id

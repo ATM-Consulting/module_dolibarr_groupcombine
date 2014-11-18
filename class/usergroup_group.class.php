@@ -30,15 +30,16 @@ class TUserGroup_Group extends TObjetStd {
 			
 		}
 		
-		foreach ($TGroupTo as $id_group_to) {
+		$g=new UserGroup($db);
+		$g->fetch($fk_group);
+		$Tab = $g->listUsersForGroup('',1);
+		
+		foreach($Tab as $idUser=>$dummy) {
+				
+			$TGroupIn = $g->listGroupsForUser($idUser);
 			
-			$g=new UserGroup($db);
-			$g->fetch($fk_group);
-			$Tab = $g->listUsersForGroup('',1);
-			foreach($Tab as $idUser=>$dummy) {
-				
-				$TGroupIn = $g->listGroupsForUser($idUser);
-				
+			foreach ($TGroupTo as $id_group_to) {
+			
 				if(!isset($TGroupIn[$id_group_to])) {
 					$u=new User($db);
 					$u->fetch($idUser);
@@ -56,53 +57,62 @@ class TUserGroup_Group extends TObjetStd {
 		
 		$o=new TUserGroup_Group;
 		$o->fk_group = $fk_group;
-		$o->fk_usergroup = $id_group_to;
+		$o->fk_usergroup = $fk_usergroup;
 		$o->entity = $conf->entity;
 		
 		$o->save($ATMdb);
 		
-		linkGroupUsersToAnother::linkGroupUsersToAnother($ATMdb, $fk_group, $fk_usergroup);
+		TUserGroup_Group::linkGroupUsersToAnother($ATMdb, $fk_group, $fk_usergroup);
 		
 	}
 	
-	static function unlinkGroupUsers(&$ATMdb, $fk_group, $fk_usergroup=-1) {
+	static function unlinkUserFromGroup(&$ATMdb, $fk_group, $fk_user) {
 		global $conf, $db;
 			
 		$TGroupTo=array();
-		
-		if($fk_usergroup>0) {
-			$TGroupTo[] = $fk_usergroup;
+		$ATMdb->Execute("SELECT fk_usergroup FROM ".MAIN_DB_PREFIX."usergroup_group WHERE fk_group=".(int)$fk_group);
+		while($obj = $ATMdb->Get_line()) {
+			$TGroupTo[] = $obj->fk_usergroup;
 		}
-		else{
-			$ATMdb->Execute("SELECT fk_usergroup FROM ".MAIN_DB_PREFIX."usergroup_group WHERE fk_group=".(int)$fk_group);
-			while($obj = $ATMdb->Get_line()) {
-				$TGroupTo[] = $obj->fk_usergroup;
-			}
 				
-			
-		}
-		
 		foreach ($TGroupTo as $id_group_to) {
-				
+
 			$g=new UserGroup($db);
-			
-			$g->fetch($fk_group);
+			$g->fetch($id_group_to);
 			$Tab = $g->listUsersForGroup('',1);
-			foreach($Tab as $idUser=>$dummy) {
+
+			if(isset($Tab[$fk_user])) {
 				
-				$u=new User($db);
-				$u->fetch($idUser);
-				$u->RemoveFromGroup($fk_usergroup, $conf->entity);
+				$ATMdb->Execute("SELECT count(*) as nb
+				FROM ".MAIN_DB_PREFIX."usergroup_group ugg INNER JOIN ".MAIN_DB_PREFIX."usergroup_user ugu ON (ugg.fk_group = ugu.fk_usergroup)
+				WHERE ugg.fk_usergroup=".(int)$id_group_to." AND ugu.fk_user=".$fk_user." AND ugg.fk_group!=".$fk_group);
+				$obj=$ATMdb->Get_line();
+				
+				if($obj->nb == 0) {
+					$u=new User($db);
+					$u->fetch($fk_user);
+					$u->RemoveFromGroup($id_group_to, $conf->entity);
+				}
 				
 			}
-				
 		}
-		
 	}
 	
 	static function deleteLinkGroup(&$ATMdb, $fk_group, $fk_usergroup) {
 		global $db, $conf;
 		
+		$g=new UserGroup($db);
+			
+		$g->fetch($fk_group);
+		$Tab = $g->listUsersForGroup('',1);
+		foreach($Tab as $idUser=>$dummy) {
+			
+			$u=new User($db);
+			$u->fetch($idUser);
+			$u->RemoveFromGroup($fk_usergroup, $conf->entity);
+		
+			TUserGroup_Group::unlinkUserFromGroup($ATMdb, $fk_usergroup, $u->id);	
+		}
 		
 		$ATMdb->Execute("DELETE FROM ".MAIN_DB_PREFIX."usergroup_group WHERE fk_usergroup=".(int)$fk_usergroup." AND fk_group=".(int)$fk_group);		
 		
