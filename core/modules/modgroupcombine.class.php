@@ -72,8 +72,8 @@ class modGroupcombine extends DolibarrModules
 		// for default path (eg: /groupcombine/core/xxxxx) (0=disable, 1=enable)
 		// for specific path of parts (eg: /groupcombine/core/modules/barcode)
 		// for specific css file (eg: /groupcombine/css/groupcombine.css.php)
-		//$this->module_parts = array(
-		//                        	'triggers' => 0,                                 	// Set this to 1 if module has its own trigger directory (core/triggers)
+		$this->module_parts = array(
+		                        	'triggers' => 1,                                 	// Set this to 1 if module has its own trigger directory (core/triggers)
 		//							'login' => 0,                                    	// Set this to 1 if module has its own login method directory (core/login)
 		//							'substitutions' => 0,                            	// Set this to 1 if module has its own substitution function file (core/substitutions)
 		//							'menus' => 0,                                    	// Set this to 1 if module has its own menus handler directory (core/menus)
@@ -86,8 +86,8 @@ class modGroupcombine extends DolibarrModules
 		//							'hooks' => array('hookcontext1','hookcontext2')  	// Set here all hooks context managed by module
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@groupcombine')) // Set here all workflow context managed by module
-		//                        );
-		$this->module_parts = array();
+		                       );
+		
 
 		// Data directories to create when module is enabled.
 		// Example: this->dirs = array("/groupcombine/temp");
@@ -136,7 +136,9 @@ class modGroupcombine extends DolibarrModules
 		// 'stock'            to add a tab in stock view
 		// 'thirdparty'       to add a tab in third party view
 		// 'user'             to add a tab in user view
-        $this->tabs = array();
+        $this->tabs = array(
+			'group:+multigroup:MultiGroup:groupcombine@groupcombine:$user->rights->user->user->creer:/groupcombine/combine.php?id=__ID__'
+		);
 
         // Dictionaries
 	    if (! isset($conf->groupcombine->enabled))
@@ -249,6 +251,14 @@ class modGroupcombine extends DolibarrModules
 		$sql = array();
 
 		$result=$this->_load_tables('/groupcombine/sql/');
+		define('INC_FROM_DOLIBARR',true);
+		dol_include_once('/groupcombine/config.php');
+		dol_include_once('/groupcombine/class/usergroup_group.class.php');
+
+		$PDOdb=new TPDOdb;
+		
+		$o=new TUserGroup_Group($db);
+		$o->init_db_by_vars($PDOdb);
 
 		return $this->_init($sql, $options);
 	}
