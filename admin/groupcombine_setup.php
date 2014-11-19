@@ -96,6 +96,8 @@ dol_fiche_head(
 );
 
 // Setup page goes here
+print "Aucun paramètrage nécessaire, rendez-vous sur la fiche d'un groupe pour la configuration de la liaison";
+/*
 $form=new Form($db);
 $var=false;
 print '<table class="noborder" width="100%">';
@@ -119,7 +121,7 @@ print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">'
 print '</form>';
 print '</td></tr>';
 
-print '</table>';
+print '</table>';*/
 
 llxFooter();
 
