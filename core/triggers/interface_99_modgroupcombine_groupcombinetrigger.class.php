@@ -125,7 +125,7 @@ class Interfacegroupcombinetrigger
 			
 			$fk_group = $object->newgroupid;
 			$ATMdb=new TPDOdb;
-			TUserGroup_Group::linkGroupToAnother($ATMdb, $fk_group);
+			TUserGroup_Group::linkGroupUsersToAnother($ATMdb, $fk_group);
 						
 			dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -139,9 +139,7 @@ class Interfacegroupcombinetrigger
 			
 			$fk_group = $object->oldgroupid;
 			$ATMdb=new TPDOdb;
-			TUserGroup_Group::unlinkUserFromGroup($ATMdb, $fk_group, $object->id);
-			
-			
+			TUserGroup_Group::updateUserLink($ATMdb, $fk_group, array($object->id));
 			
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id

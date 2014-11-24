@@ -10,3 +10,7 @@ MultiGroup=Multi-Groupe
 ListOfGroupCombineInGroup=Liste des groupes combinés
 GroupLinked=Groupe lié
 GroupLinkDeleted=Lien supprimé
+MultiGroupMode=Mode
+Union=Union
+Intersect=Intersection
+MultiGroupUserLinked=Utilisateurs issus des groupes combinés

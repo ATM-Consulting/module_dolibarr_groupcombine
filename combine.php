@@ -18,7 +18,7 @@
 	
 	if($action==='addgroup') {
 		
-		TUserGroup_Group::linkGroupToAnother($ATMdb, GETPOST('fk_group'), GETPOST('id'));
+		TUserGroup_Group::linkGroupToAnother($ATMdb, GETPOST('fk_group'), GETPOST('id'), GETPOST('mode'));
 	
 		setEventMessage($langs->trans('GroupLinked'));	
 	}
@@ -85,25 +85,31 @@
 			print '<tr><td width="25%" valign="top">'.$langs->trans("Note").'</td>';
 			print '<td class="valeur">'.dol_htmlentitiesbr($object->note).'&nbsp;</td>';
 			print "</tr>\n";
+
 			print "</table>\n";
 
 			print '</div>';
 	
+			$ugg=new TUserGroup_Group;
+			$TGroupLinked = TUserGroup_Group::getGroups($ATMdb, $object->id, true);
+			
 			$formATM=new TFormCore('auto','formCG', 'post');
 			echo $formATM->hidden('action', 'addgroup');
 			echo $formATM->hidden('id', $object->id);
 	
-			echo $form->select_dolgroups(-1, 'fk_group',1, array($object->id) );
-	
+			echo $form->select_dolgroups(-1, 'fk_group',1, array_merge($TGroupLinked['UNION'],$TGroupLinked['INTERSEC'],array($object->id)) );
+			echo ' - '.$formATM->combo($langs->trans('MultiGroupMode'), 'mode', $ugg->TMode,-1 );
+			
 			echo $formATM->btsubmit($langs->trans('Add'), 'btadd');
 	
 			$formATM->end();
-	
+			
+			
 			echo '<br />';
 	
 			$l=new TListviewTBS('listCombine');
 			
-			$sql = "SELECT ug.rowid as 'Id', ug.nom, '' as 'Actions'
+			$sql = "SELECT ug.rowid as 'Id', ug.nom, ugg.mode, '' as 'Actions'
 			FROM ".MAIN_DB_PREFIX."usergroup_group ugg	LEFT JOIN ".MAIN_DB_PREFIX."usergroup ug ON (ugg.fk_group=ug.rowid) 
 			WHERE ugg.fk_usergroup = ".$object->id."
 			ORDER BY  ug.nom
@@ -114,6 +120,9 @@
 				'liste'=>array(
 					'titre'=>$langs->trans("ListOfGroupCombineInGroup")
 				)
+				,'translate'=>array(
+					'mode'=>$ugg->TMode
+				)
 				,'link'=>array(
 					'Actions'=>'<a href="?action=dellink&fk_group=@Id@&id='.$object->id.'">'.img_delete().'</a>'
 					,'nom'=>img_picto('', 'object_group.png').' <a href="'.dol_buildpath('/user/group/fiche.php',1).'?id=@Id@">@val@</a>'
@@ -121,6 +130,37 @@
 				
 			));
 			
+			
+		print_fiche_titre($langs->trans("MultiGroupUserLinked"));	
+		
+		?>
+		<table class="liste" width="100%">
+			<tr class="liste_titre">
+				<td class="liste_titre"><?php echo $langs->trans('User') ?></td>
+			</tr>
+			<?php
+			
+			$TUser = TUserGroup_Group::getUsers($ATMdb, $object->id);
+			foreach($TUser as $idu) {
+								
+				$u=new User($db);
+				$u->fetch($idu);			
+							
+				$class = ($class =='impair') ? 'pair' : 'impair';		
+						
+				?><tr class="<?php echo $class ?>">
+					<td>
+						<?php echo $u->getNomUrl(1); ?>
+					</td>
+				</tr>
+				
+				<?	
+				
+			}
+			
+			?>
+		</table>
+		<?php
 	
 	
 	llxFooter();
