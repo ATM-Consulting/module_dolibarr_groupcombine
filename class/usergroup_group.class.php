@@ -65,8 +65,8 @@ class TUserGroup_Group extends TObjetStd {
 
 			$Tab = $g->listUsersForGroup('',1);
 
-
-			$TUser=array_intersect($TUser, $Tab);
+			if(empty($TUser))$TUser=$Tab;
+			else $TUser=array_intersect($TUser, $Tab);
 		}
 		
 		$TUser = array_unique($TUser, SORT_NUMERIC);
