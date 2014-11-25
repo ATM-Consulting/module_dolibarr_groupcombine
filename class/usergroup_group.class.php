@@ -37,7 +37,7 @@ class TUserGroup_Group extends TObjetStd {
 			else{
 				$g=new UserGroup($db);
 				$g->fetch($obj->fk_group);
-				
+				if(empty($obj->mode))$obj->mode='UNION';
 				$TGroup[$obj->mode][] = $g;
 					
 			}
