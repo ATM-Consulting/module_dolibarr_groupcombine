@@ -121,6 +121,8 @@ class TUserGroup_Group extends TObjetStd {
 			$TGroupTo[] = $fk_usergroup;
 		}
 		else{
+			
+			// On récupère les groupes lié à ce groupe
 			$sql = "SELECT fk_usergroup FROM ".MAIN_DB_PREFIX."usergroup_group WHERE fk_group=".(int)$fk_group;
 			$ATMdb->Execute($sql);
 			while($obj = $ATMdb->Get_line()) {
@@ -132,7 +134,7 @@ class TUserGroup_Group extends TObjetStd {
 		
 		
 		foreach ($TGroupTo as $id_group_to) {
-		
+			// Pour chaque groupe on ajout les users du groupe courant dans ce dernier
 			TUserGroup_Group::updateUserLink($ATMdb, $id_group_to);
 			
 		}

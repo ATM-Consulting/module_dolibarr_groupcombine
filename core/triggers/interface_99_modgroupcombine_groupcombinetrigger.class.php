@@ -137,9 +137,10 @@ class Interfacegroupcombinetrigger
 		    dol_include_once('/groupcombine/config.php');
 			dol_include_once('/groupcombine/class/usergroup_group.class.php');
 			
-			$fk_group = $object->oldgroupid;
+			$fk_group = $object->oldgroupid; // Groupe d'où l'utilisateur a déjà été enlevé
 			$ATMdb=new TPDOdb;
-			TUserGroup_Group::updateUserLink($ATMdb, $fk_group, array($object->id));
+			//TUserGroup_Group::updateUserLink($ATMdb, $fk_group, array($object->id));
+			TUserGroup_Group::linkGroupUsersToAnother($ATMdb, $fk_group);
 			
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
