@@ -78,13 +78,6 @@ class TUserGroup_Group extends TObjetStd {
 	static function updateUserLink($ATMdb, $fk_usergroup, $notUsers=array()) {
 		global $db, $conf;
 	
-		/*if(!isset($GLOBALS['GroupCombine_TGroupAlreadyUpdated']))$GLOBALS['GroupCombine_TGroupAlreadyUpdated']=array();
-		
-		if(isset($GLOBALS['GroupCombine_TGroupAlreadyUpdated'][$fk_usergroup])) return false;
-		
-		$GLOBALS['GroupCombine_TGroupAlreadyUpdated'][$fk_usergroup] = 1; // évite de refaire un groupe durant une même exécution de script
-		*/
-		
 		if($fk_usergroup>0) {
 			$TUser = TUserGroup_Group::getUsers($ATMdb, $fk_usergroup);
 			
