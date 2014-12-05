@@ -77,37 +77,46 @@ class TUserGroup_Group extends TObjetStd {
 	
 	static function updateUserLink($ATMdb, $fk_usergroup, $notUsers=array()) {
 		global $db, $conf;
+	
+		/*if(!isset($GLOBALS['GroupCombine_TGroupAlreadyUpdated']))$GLOBALS['GroupCombine_TGroupAlreadyUpdated']=array();
 		
-		$TUser = TUserGroup_Group::getUsers($ATMdb, $fk_usergroup);
+		if(isset($GLOBALS['GroupCombine_TGroupAlreadyUpdated'][$fk_usergroup])) return false;
 		
-		$g=new UserGroup($db);
-		$g->fetch($fk_usergroup);
-		$Tab = $g->listUsersForGroup('',1);
+		$GLOBALS['GroupCombine_TGroupAlreadyUpdated'][$fk_usergroup] = 1; // évite de refaire un groupe durant une même exécution de script
+		*/
 		
-		foreach($TUser as $idu) {
+		if($fk_usergroup>0) {
+			$TUser = TUserGroup_Group::getUsers($ATMdb, $fk_usergroup);
+			
+			$g=new UserGroup($db);
+			$g->fetch($fk_usergroup);
+			$Tab = $g->listUsersForGroup('',1);
+			
+			foreach($TUser as $idu) {
+						
+				if(!in_array($idu, $Tab) && !in_array($idu, $notUsers)) {
+							
+					$u=new User($db);
+					$u->fetch($idu);
+					//print "ajout $idu $fk_usergroup<br/>";
+					$u->SetInGroup($fk_usergroup, $conf->entity);
 					
-			if(!in_array($idu, $Tab) && !in_array($idu, $notUsers)) {
-						
-				$u=new User($db);
-				$u->fetch($idu);
-				//print "ajout $idu $fk_usergroup<br/>";
-				$u->SetInGroup($fk_usergroup, $conf->entity);
+				}	
 				
-			}	
+			}
 			
-		}
-		
-		foreach($Tab as $idu) {
-			
-			if(!in_array($idu, $TUser) && !in_array($idu, $notUsers)) {
-						
-				$u=new User($db);
-				$u->fetch($idu);
-				//print "suppr $idu $fk_usergroup<br/>";
-				$u->RemoveFromGroup($fk_usergroup, $conf->entity);
+			foreach($Tab as $idu) {
 				
-			}	
-			
+				if(!in_array($idu, $TUser) && !in_array($idu, $notUsers)) {
+							
+					$u=new User($db);
+					$u->fetch($idu);
+					//print "suppr $idu $fk_usergroup<br/>";
+					$u->RemoveFromGroup($fk_usergroup, $conf->entity);
+					
+				}	
+				
+			}			
 		}
 		
 	}
@@ -146,12 +155,15 @@ class TUserGroup_Group extends TObjetStd {
 	static function linkGroupToAnother(&$ATMdb, $fk_group,$fk_usergroup=-1, $mode='UNION') {
 		global $conf,$db;
 		
-		$o=new TUserGroup_Group;
-		$o->fk_group = $fk_group;
-		$o->fk_usergroup = $fk_usergroup;
-		$o->entity = $conf->entity;
-		$o->mode = $mode;
-		$o->save($ATMdb);
+		if($fk_usergroup>0) {
+			$o=new TUserGroup_Group;
+			$o->fk_group = $fk_group;
+			$o->fk_usergroup = $fk_usergroup;
+			$o->entity = $conf->entity;
+			$o->mode = $mode;
+			$o->save($ATMdb);
+		}
+		
 		
 		TUserGroup_Group::linkGroupUsersToAnother($ATMdb, $fk_group, $fk_usergroup);
 		
