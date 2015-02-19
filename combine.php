@@ -98,7 +98,7 @@
 			echo $formATM->hidden('id', $object->id);
 	
 			echo $form->select_dolgroups(-1, 'fk_group',1, array_merge($TGroupLinked['UNION'],$TGroupLinked['INTERSEC'],array($object->id)) );
-			echo ' - '.$formATM->combo($langs->trans('MultiGroupMode'), 'mode', $ugg->TMode,-1 );
+			echo ' - '.$formATM->combo($langs->trans('MultiGroupMode'), 'mode', $ugg->TMode, 'INTERSEC' );
 			
 			echo $formATM->btsubmit($langs->trans('Add'), 'btadd');
 	
