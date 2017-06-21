@@ -49,7 +49,7 @@ class TUserGroup_Group extends TObjetStd {
 	
 	static function getUsers(&$ATMdb, $fk_usergroup) {
 		
-		$TUser=array();
+		$TUser=null;
 	
 		$TGroup = TUserGroup_Group::getGroups($ATMdb, $fk_usergroup);
 
@@ -57,16 +57,18 @@ class TUserGroup_Group extends TObjetStd {
 			
 			$Tab = $g->listUsersForGroup('', 1);
 			
-			$TUser=array_merge($TUser, $Tab);
+			if(is_null($TUser))$TUser=$Tab;
+			else $TUser=array_merge($TUser, $Tab);
 			
 		}
 		
 		foreach($TGroup['INTERSEC'] as $g) {
 
 			$Tab = $g->listUsersForGroup('',1);
-
-			if(empty($TUser))$TUser=$Tab;
+			
+			if(is_null($TUser))$TUser=$Tab;
 			else $TUser=array_intersect($TUser, $Tab);
+			
 		}
 		
 		$TUser = array_unique($TUser, SORT_NUMERIC);
