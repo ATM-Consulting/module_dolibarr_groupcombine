@@ -116,32 +116,35 @@ class Interfacegroupcombinetrigger
         // Put here code you want to execute when a Dolibarr business events occurs.
         // Data and type of action are stored into $object and $action
         // Users
-       if ($action === 'USER_SETINGROUP') {
-       	
+       if ($action === 'USER_SETINGROUP' || $action === 'USER_MODIFY') {
+
 			define('INC_FROM_DOLIBARR', true);
 		    dol_include_once('/groupcombine/config.php');
 			dol_include_once('/groupcombine/class/usergroup_group.class.php');
-			
-			
-			$fk_group = $object->newgroupid;
-			$ATMdb=new TPDOdb;
-			TUserGroup_Group::linkGroupUsersToAnother($ATMdb, $fk_group);
-						
+
+
+	       $fk_group = $object->newgroupid;
+	       if (empty($fk_group) && !empty($object->context['newgroupid'])) $fk_group = $object->context['newgroupid'];
+	       if (empty($fk_group) && !empty($object->context['oldgroupid'])) $fk_group = $object->context['oldgroupid'];
+
+	       $ATMdb = new TPDOdb;
+	       TUserGroup_Group::linkGroupUsersToAnother($ATMdb, $fk_group);
+
 			dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-        } 
+        }
         elseif ($action === 'USER_REMOVEFROMGROUP') {
-        	
+
 			define('INC_FROM_DOLIBARR', true);
 		    dol_include_once('/groupcombine/config.php');
 			dol_include_once('/groupcombine/class/usergroup_group.class.php');
-			
+
 			$fk_group = $object->oldgroupid; // Groupe d'où l'utilisateur a déjà été enlevé
 			$ATMdb=new TPDOdb;
 			//TUserGroup_Group::updateUserLink($ATMdb, $fk_group, array($object->id));
 			TUserGroup_Group::linkGroupUsersToAnother($ATMdb, $fk_group);
-			
+
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
